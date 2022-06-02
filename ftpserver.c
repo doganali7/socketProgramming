@@ -12,6 +12,8 @@
 #include <unistd.h>
 #include <string.h>
 
+int loggedIn = -1;
+
 void do_job(int fd)
 {
     int length, rcnt;
@@ -24,17 +26,64 @@ void do_job(int fd)
         rcnt = recv(fd, recvbuf, recvbuflen, 0);
         if (rcnt > 0)
         {
-            printf("Bytes received: %d\n", rcnt);
 
-            // Echo the buffer back to the sender
-            rcnt = send(fd, recvbuf, rcnt, 0);
+            // tokenize string
+            int i = 0;
+            char *p = strtok(recvbuf, " ");
+            char *array[3];
+
+            while (p != NULL)
+            {
+                array[i++] = p;
+                p = strtok(NULL, " ");
+            }
+
+            if(strcmp("USER", array[0]) == 0){
+
+            }
+            else if(strcmp("LIST", array[0]) == 0){
+                /* write code to list */
+                if (loggedIn == -1)
+                {
+                    send(fd, "Please login using USER command\n", 32, 0);
+                    break;
+                }
+            }
+            else if(strcmp("GET", array[0]) == 0){
+                /* write code to list */
+                if (loggedIn == -1)
+                {
+                    send(fd, "Please login using USER command\n", 32, 0);
+                    break;
+                }
+            }
+            else if(strcmp("PUT", array[0]) == 0){
+                /* write code to list */
+                if (loggedIn == -1)
+                {
+                    send(fd, "Please login using USER command\n", 32, 0);
+                    break;
+                }
+            }
+            else if(strcmp("DEL", array[0]) == 0){
+                /* write code to list */
+                if (loggedIn == -1)
+                {
+                    send(fd, "Please login using USER command\n", 32, 0);
+                    break;
+                }
+            }
+            else if(strcmp("QUIT", array[0]) == 0){
+                /* write code to list */
+                close(fd);
+            }
+
             if (rcnt < 0)
             {
                 printf("Send failed:\n");
                 close(fd);
                 break;
             }
-            printf("Bytes sent: %d\n", rcnt);
         }
         else if (rcnt == 0)
             printf("Connection closing...\n");
@@ -113,13 +162,11 @@ int main(int argc, char *argv[])
                 perror("Accept Problem!");
                 continue;
             }
-            printf("Server: got connection from %s\n",
-                   inet_ntoa(remote_addr.sin_addr));
+            send(fd, "Welcome to Gulluri's file server\n", 33, 0);
             if ((pid = fork()) == 0)
             {
                 close(server);
                 do_job(fd);
-                printf("Child finished their job!\n");
                 close(fd);
                 exit(0);
             }
